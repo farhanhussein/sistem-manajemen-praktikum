@@ -1,49 +1,157 @@
+// // lab-sister/page.tsx
+// "use client";
+
+// import React, { useEffect, useState } from "react";
+// import { useRouter } from "next/navigation";
+
+// function LabSisterPage() {
+//   const [features, setFeatures] = useState<string[]>([]);
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState("");
+//   const router = useRouter();
+
+//   useEffect(() => {
+//     fetch("http://localhost:8080/api/lab/lab-sister/4")
+//       .then((response) => {
+//         if (!response.ok) {
+//           throw new Error(`HTTP error! status: ${response.status}`);
+//         }
+//         return response.json();
+//       })
+//       .then((data) => {
+//         console.log("Lab Sistem Tertanam API Response:", data);
+//         setFeatures(data.data || []);
+//       })
+//       .catch((err) => {
+//         console.error("Error fetching Lab Sistem Tertanam data:", err);
+//         setError("Failed to fetch data");
+//       })
+//       .finally(() => setLoading(false));
+//   }, []);
+
+//   return (
+//     <div className="flex min-h-screen bg-gray-100">
+//       {/* Sidebar */}
+//       <aside className="w-1/4 bg-white shadow-md p-6 flex flex-col justify-between">
+//         <div>
+//           <h1 className="text-xl font-bold text-gray-700 mb-6">Sistem Tertanam dan Robotika</h1>
+//           <nav>
+//             <ul className="space-y-4">
+//               <li className="text-gray-600 hover:text-blue-600 cursor-pointer" onClick={() => router.push("/praktikum")}>Praktikum</li>
+//               <li className="text-gray-600 hover:text-blue-600 cursor-pointer" onClick={() => router.push("/jadwal-praktikum")}>Jadwal Praktikum</li>
+//               <li className="text-gray-600 hover:text-blue-600 cursor-pointer" onClick={() => router.push("/presensi")}>Presensi</li>
+//               <li className="text-gray-600 hover:text-blue-600 cursor-pointer" onClick={() => router.push("/submission")}>Submission</li>
+//               <li className="text-gray-600 hover:text-blue-600 cursor-pointer" onClick={() => router.push("/penilaian")}>Penilaian</li>
+//             </ul>
+//           </nav>
+//         </div>
+//         <div>
+//           <p className="text-gray-600 cursor-pointer hover:text-blue-600">Account Setting</p>
+//           <p className="text-gray-600 cursor-pointer hover:text-blue-600">Log out</p>
+//         </div>
+//       </aside>
+
+//       {/* Main Content */}
+//       <main className="flex-1 p-10">
+//         <header className="flex justify-between items-center mb-6">
+//           <h1 className="text-3xl font-bold text-gray-800">PRAKTIKUM</h1>
+//           <div className="bg-gray-300 w-10 h-10 rounded-full"></div>
+//         </header>
+
+//         {loading ? (
+//           <p className="text-gray-500">Loading...</p>
+//         ) : error ? (
+//           <p className="text-red-500">{error}</p>
+//         ) : (
+//           <div className="grid grid-cols-3 gap-6">
+//             {features.length > 0 ? (
+//               features.map((feature, index) => (
+//                 <div key={index} className="bg-blue-200 shadow-md rounded-lg p-6 flex flex-col justify-between h-40">
+//                   <h3 className="text-lg font-semibold text-gray-700">{feature}</h3>
+//                   <p className="text-sm text-gray-600">Senin, Selasa, Jumat</p>
+//                 </div>
+//               ))
+//             ) : (
+//               <p className="col-span-3 text-gray-500">No features available</p>
+//             )}
+
+//             <div className="bg-white shadow-md rounded-lg p-6 flex items-center justify-center border-2 border-gray-300 cursor-pointer hover:bg-gray-200" onClick={() => alert("Add Practicum Clicked")}> 
+//               <p className="text-blue-600 text-lg font-bold">+ Add Practicum</p>
+//             </div>
+//           </div>
+//         )}
+//       </main>
+//     </div>
+//   );
+// }
+
+// export default LabSisterPage;
+
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 
 function LabSisterPage() {
-  const [message, setMessage] = useState("Loading...");
-  const [modules, setModules] = useState<string[]>([]);
+  const [modules, setModules] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/lab/lab-sister")
-      .then((response) => response.json())
+    setLoading(true);
+    fetch("http://localhost:8080/api/lab/lab-sister/4")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
       .then((data) => {
-        console.log(data);
-        setMessage(data.message || "No message found");
         setModules(data.data || []);
       })
       .catch((error) => {
-        console.error("Error fetching data:", error);
-        setMessage("Error loading data");
-      });
+        console.error("Error fetching Lab Sister modules:", error);
+        setError("Failed to fetch modules");
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <h1 className="text-4xl font-bold text-blue-600 mb-4">Lab Sistem Tertanam</h1>
-      <div className="text-lg text-gray-800 mb-6">{message}</div>
-      <div className="w-full max-w-md bg-white shadow-md rounded-lg p-6">
-        <h2 className="text-2xl font-semibold text-gray-700 mb-4">
-          List of Practicum
-        </h2>
-        {modules.length > 0 ? (
-          <ul className="space-y-2">
-            {modules.map((module, index) => (
-              <li
-                key={index}
-                className="bg-gray-100 px-4 py-2 rounded-md shadow-sm text-gray-700"
+    <>
+      <header className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-gray-700">Modules - Lab Sister</h1>
+      </header>
+
+      {loading ? (
+        <p className="text-gray-500">Loading...</p>
+      ) : error ? (
+        <p className="text-red-500">{error}</p>
+      ) : (
+        <div className="grid grid-cols-3 gap-6">
+          {modules.length > 0 ? (
+            modules.map((module) => (
+              <div
+                key={module.id}
+                className="bg-white shadow-md rounded-lg p-4 flex flex-col justify-between"
               >
-                {module}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-gray-500">No Practicum available</p>
-        )}
-      </div>
-    </div>
+                <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                  {module.name}
+                </h3>
+                <p className="text-sm text-gray-500 mb-4">Modul ID: {module.modul}</p>
+                <Link
+                  href={`/lab/lab-sister/${module.id}`}
+                  className="text-blue-600 hover:underline"
+                >
+                  View Details
+                </Link>
+              </div>
+            ))
+          ) : (
+            <p className="col-span-3 text-gray-500">No modules available</p>
+          )}
+        </div>
+      )}
+    </>
   );
 }
 
