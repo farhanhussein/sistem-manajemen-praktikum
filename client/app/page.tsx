@@ -69,7 +69,6 @@ function Page() {
       <aside className="w-1/4 bg-blue-500 text-black p-4 shadow-md">
         <h1 className="text-xl font-bold mb-6">SIMP</h1>
         <div className="mb-6">
-          <label className="block text-sm mb-2">Select Lab</label>
           <select
             className="w-full p-2 border rounded-md"
             value={selectedLab}

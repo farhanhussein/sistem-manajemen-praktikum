@@ -1,148 +1,38 @@
-// const express = require("express");
-// const app = express();
-// const cors = require("cors");
-// const PORT = 8080;
-
-// app.use(cors());
-// app.use(express.json());
-
-// // API Routes
-// // API untuk nampilin Home Page (difetch dari page.tsx globak)
-// app.get('/api/lab', (req, res) => {
-//     res.json({
-//       message: 'Welcome to the Management Information System API',
-//       data: ['Lab RPL', 'Lab Mulmed', 'Lab jaringan', 'Lab Sister'],
-//     });
-//   });
-
-// // API untuk nampilin data lab rpl (difetch dari page.tsx folder lab-rpl)
-//   app.get("/api/lab/lab-rpl", (req, res) => {
-//     res.json({
-//       message: "Lab RPL Data",
-//       data: [
-//         "Praktikum Pemrograman Dasar",
-//         "Praktikum Rekayasa Perangkat Lunak",
-//         "Praktikum Pemrograman Perangkat Bergerak",
-//         "Praktikum RPLBK",
-//         "Praktikum Sistem Basis Data",
-//       ],
-//     });
-//   });
-
-//   app.get("/api/lab/lab-mulmed", (req, res) => {
-//     res.json({
-//       message: "Lab Multimedia Data",
-//       data: [
-//         "Praktikum Multimedia",
-//       ],
-//     });
-//   });
-
-//   app.get("/api/lab/lab-jaringan", (req, res) => {
-//     res.json({
-//       message: "Lab Jaringan Data",
-//       data: [
-//         "Praktikum Pengenalan Jaringan Komputer",
-//         "Praktikum Switching Routing Wireless Essentials",
-//       ],
-//     });
-//   });
-
-//   app.get("/api/lab/lab-sister", (req, res) => {
-//     res.json({
-//       message: "Lab Sistem Tertanam",
-//       data: [
-//         "Praktikum Elektronika Dasar",
-//         "Praktikum Sistem DIgital",
-//         "Praktikum Teknik Mikroprosessor dan Antarmuka",
-//         "Praktikum Sistem Digital Lanjur",
-//         "Praktikum Teknik Kendali dan Otomasi",
-//       ],
-//     });
-//   });
-
-//   app.get('/api/praktikum/lab-rpl', (req, res) => {
-//     res.json({
-//       message: 'Welcome to the Management Information System API',
-//       data: ['Praktikum DKP', 'Praktikum RPL', 'Praktikum PPB'],
-//     });
-//   });
-
-//   app.get("/api/praktikum/prak-dkp", (req, res) => {
-//     res.json({
-//       message: "Praktikum DKP",
-//       data: [
-//         "Modul 1 : Python",
-//         "Modul 2 : Java",
-//       ],
-//     });
-//   });
-
-//   app.get("/api/praktikum/prak-rpl", (req, res) => {
-//     res.json({
-//       message: "Praktikum RPL",
-//       data: [
-//         "Modul 1 : Agile",
-//         "Modul 2 : Waterfall",
-//       ],
-//     });
-//   });
-
-//   app.get("/api/praktikum/prak-ppb", (req, res) => {
-//     res.json({
-//       message: "Praktikum PPB", 
-//       data: [
-//         "Modul 1 : Android",
-//         "Modul 2 : Native",
-//       ],
-//     });
-//   });
-  
-//   // Start the server
-//   app.listen(PORT, () => {
-//     console.log(`Server started on http://localhost:${PORT}`);
-//   });
-
-
-
-// require('dotenv').config();
-// const express = require('express');
-// const cors = require('cors');
-// const morgan = require('morgan');
-// const labRoutes = require('./routes/labRoutes');
-// const praktikumRoutes = require('./routes/praktikumRoutes');
-
-// const app = express();
-// const PORT = process.env.PORT || 8080;
-
-// app.use(cors());
-// app.use(express.json());
-// app.use(morgan('dev'));
-
-// // Gunakan routes
-// app.use('/api', labRoutes);
-// app.use('/api', praktikumRoutes);
-
-// // Error handling
-// app.use((err, req, res, next) => {
-//   console.error(err.stack);
-//   res.status(500).json({ message: 'Something went wrong!' });
-// });
-
-// // Start the server
-// app.listen(PORT, () => {
-//   console.log(`Server started on http://localhost:${PORT}`);
-// });
-
 import express from "express";
 import cors from "cors";
-import { getLabs, getModulesEldasByPraktikumId, getPraktikumByLabId, } from "./db.js";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+import { getLabs, getModulesEldasByPraktikumId, getPraktikumByLabId, getSubModulesEldasByModulID, getVideosSubModulesEldasBySubModulID, getQuizEldasBySubModulID, checkAnswer, saveUserAnswer, pool} from "./db.js";
 
 const app = express();
 const PORT = 8080;
 
+
 app.use(cors());
 app.use(express.json());
+
+const uploadDir = path.join(process.cwd(), "server/video");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+app.use("/server/video", express.static(uploadDir));
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    let title = req.body.title || "video"; // Ambil judul atau default ke "video"
+
+    // Bersihkan karakter yang tidak boleh ada di nama file
+    title = title.replace(/[^a-zA-Z0-9-_]/g, "_"); 
+
+    cb(null, `${title}_${Date.now()}${path.extname(file.originalname)}`);
+  },
+});
+
+const upload = multer({ storage });
 
 // API untuk nampilin Home Page (data dari database)
 app.get("/api/lab", async (req, res) => {
@@ -202,6 +92,106 @@ app.get("/api/praktikum/prak-eldas/:prakId", async (req, res) => {
     res.status(500).json({ message: "Internal Server Error"});
   }
 })
+
+app.get("/api/praktikum/prak-eldas/modul/:modulId", async (req, res) => {
+  try{
+    const { modulId } = req.params;
+    const subModules = await getSubModulesEldasByModulID(modulId);
+
+    res.json({
+      message: `Sub Modules of Modul Prak Eldas ${modulId}`,
+      data: subModules,
+    });
+  } catch (error) {
+    console.error("error fetching modules:", error);
+    res.status(500).json({ message: "Internal Server Error"});
+  }
+})
+
+
+app.post("/api/submodul/upload-video/:submodulId", upload.single("video"), async (req, res) => {
+  try {
+    const { submodulId } = req.params;
+    const videoUrl = `http://localhost:8080/server/video/${req.file.filename}`;
+
+    // Debugging: Cek apakah submodulId benar
+    console.log("Updating submodulId:", submodulId);
+    console.log("New video URL:", videoUrl);
+
+    const result = await pool.query("UPDATE submodul_eldas SET video_url = ? WHERE id_submodul = ?", [videoUrl, submodulId]);
+
+    // Debugging: Pastikan update berhasil
+    console.log("Database update result:", result);
+
+    res.json({ message: "Video uploaded successfully", videoUrl });
+  } catch (error) {
+    console.error("Error uploading video:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+
+app.get("/api/submodul/video/:submodulId", async (req, res) => {
+  try{
+    const { submodulId } = req.params;
+    const videos = await getVideosSubModulesEldasBySubModulID(submodulId);
+
+    res.json({
+      message: `Sub Modules of Modul 1 Prak Eldas ${submodulId}`,
+      data: videos,
+    });
+  } catch (error) {
+    console.error("error fetching modules:", error);
+    res.status(500).json({ message: "Internal Server Error"});
+  }
+})
+
+app.get('/api/submodul/quiz/:submodulId', async (req, res) => {
+  const { submodulId } = req.params;
+  try {
+    const quiz = await getQuizEldasBySubModulID(submodulId);
+    res.json({ success: true, data: quiz });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.post('/api/submodul/quiz/check-answer', async (req, res) => {
+  const { quizId, userAnswer } = req.body;
+
+  try {
+    const result = await checkAnswer(quizId, userAnswer);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.post("/api/submodul/quiz/submit", async (req, res) => {
+  try {
+    console.log("Incoming data:", req.body); // Debug: Cek apakah data dari frontend sampai ke backend
+
+    const { user_id, id_quiz, user_answer } = req.body;
+
+    // Validasi input (mencegah data kosong)
+    if (!user_id || !id_quiz || !user_answer) {
+      console.error("Error: Data tidak lengkap", req.body);
+      return res.status(400).json({ success: false, message: "Invalid data" });
+    }
+
+    // Coba eksekusi query ke database
+    const [result] = await pool.query(
+      `INSERT INTO user_answers (user_id, id_quiz, user_answer) VALUES (?, ?, ?)`,
+      [user_id, id_quiz, user_answer]
+    );
+
+    console.log("Query success:", result); // Debug: Cek apakah query sukses
+    res.json({ success: true, message: "Answer submitted successfully", result });
+  } catch (error) {
+    console.error("Error submitting answer:", error); // Debug: Lihat error detailnya
+    res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
+  }
+});
 
 // Start the server
 app.listen(PORT, () => {
