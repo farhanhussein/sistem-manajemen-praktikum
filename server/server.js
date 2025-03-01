@@ -12,18 +12,18 @@ const PORT = 8080;
 app.use(cors());
 app.use(express.json());
 
-const uploadDir = path.join(process.cwd(), "server/video");
+const uploadDir = path.join(process.cwd(), "server/video_file");
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
-app.use("/server/video", express.static(uploadDir));
+app.use("/server/video_file", express.static(uploadDir));
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
-    let title = req.body.title || "video"; // Ambil judul atau default ke "video"
+    let title = req.body.title || "file"; // Ambil judul atau default ke "video"
 
     // Bersihkan karakter yang tidak boleh ada di nama file
     title = title.replace(/[^a-zA-Z0-9-_]/g, "_"); 
@@ -32,7 +32,13 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  fileFilter: (req, file, cb) => {
+    cb(null, true); // Mengizinkan semua jenis file
+  }
+});
+
 
 // API untuk nampilin Home Page (data dari database)
 app.get("/api/lab", async (req, res) => {
@@ -109,10 +115,10 @@ app.get("/api/praktikum/prak-eldas/modul/:modulId", async (req, res) => {
 })
 
 
-app.post("/api/submodul/upload-video/:submodulId", upload.single("video"), async (req, res) => {
+app.post("/api/submodul/upload-video/:submodulId", upload.single("file"), async (req, res) => {
   try {
     const { submodulId } = req.params;
-    const videoUrl = `http://localhost:8080/server/video/${req.file.filename}`;
+    const videoUrl = `http://localhost:8080/server/video_file/${req.file.filename}`;
 
     // Debugging: Cek apakah submodulId benar
     console.log("Updating submodulId:", submodulId);

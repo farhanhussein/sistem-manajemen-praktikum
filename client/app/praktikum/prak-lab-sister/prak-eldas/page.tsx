@@ -3,16 +3,20 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FaChevronLeft, FaUserCircle, FaChevronDown, FaChevronUp } from "react-icons/fa";
-import Modul_1 from "./modul1";
-import Modul_2 from "./modul2";
-import Modul_3 from "./modul3";
-import Modul_4 from "./modul4";
-import Modul_5 from "./modul5";
-import Quiz_1 from "./quiz1";
-import Quiz_2 from "./quiz2";
-import Quiz_3 from "./quiz3";
-import Quiz_4 from "./quiz4";
-import Quiz_5 from "./quiz5";
+import Modul_1 from "./modul/modul1";
+import Modul_2 from "./modul/modul2";
+import Modul_3 from "./modul/modul3";
+import Modul_4 from "./modul/modul4";
+import Modul_5 from "./modul/modul5";
+import Modul_6 from "./modul/modul6";
+import Modul_7 from "./modul/modul7";
+import Quiz_1 from "./quiz/quiz1";
+import Quiz_2 from "./quiz/quiz2";
+import Quiz_3 from "./quiz/quiz3";
+import Quiz_4 from "./quiz/quiz4";
+import Quiz_5 from "./quiz/quiz5";
+import Quiz_6 from "./quiz/quiz6";
+import Quiz_7 from "./quiz/quiz7";
 
 function PrakEldasPage() {
   const [modules, setModules] = useState<any[]>([]);
@@ -65,6 +69,14 @@ function PrakEldasPage() {
         return <Modul_5 />;
       case 15:
         return <Quiz_5 submodulId={selectedSubmodule?.id_submodul} userId={5} />;
+      case 17:
+        return <Modul_6 />;
+      case 18:
+        return <Quiz_6 submodulId={selectedSubmodule?.id_submodul} userId={6} />;
+      case 20:
+        return <Modul_7 />;
+      case 21:
+        return <Quiz_7 submodulId={selectedSubmodule?.id_submodul} userId={7} />;
       default:
     }
   };
@@ -86,6 +98,7 @@ function PrakEldasPage() {
         {/* Sidebar */}
         <div className="w-1/4 bg-white shadow-md p-4 overflow-auto">
           <h2 className="text-xl font-semibold mb-4">Modules</h2>
+          <h3 className="p-2 font-semibold">Informasi</h3>
           <ul className="space-y-2">
             {modules.map((module) => (
               <li key={module.id_modul}>
