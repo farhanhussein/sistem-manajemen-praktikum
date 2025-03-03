@@ -27,7 +27,7 @@ function PrakEldasPage() {
   const router = useRouter(); 
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/praktikum/prak-eldas/9")
+    fetch("http://localhost:8080/api/praktikum/modul/9")
       .then((response) => response.json())
       .then((data) => setModules(data.data || []))
       .catch((error) => console.error("Error fetching data:", error));
@@ -37,7 +37,7 @@ function PrakEldasPage() {
     setOpenDropdown(openDropdown === moduleId ? null : moduleId);
 
     if (!submodules[moduleId]) {
-      fetch(`http://localhost:8080/api/praktikum/prak-eldas/modul/${moduleId}`)
+      fetch(`http://localhost:8080/api/praktikum/submodul/prak-eldas/${moduleId}`)
         .then((response) => response.json())
         .then((data) => setSubmodules((prev) => ({ ...prev, [moduleId]: data.data || [] })))
         .catch((error) => console.error("Error fetching submodules:", error));

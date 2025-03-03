@@ -84,7 +84,7 @@ app.get("/api/lab/lab-sister/:labId", async (req, res) => {
   }
 });
 
-app.get("/api/praktikum/prak-eldas/:prakId", async (req, res) => {
+app.get("/api/praktikum/modul/:prakId", async (req, res) => {
   try{
     const { prakId } = req.params;
     const module = await getModulesEldasByPraktikumId(prakId);
@@ -99,7 +99,7 @@ app.get("/api/praktikum/prak-eldas/:prakId", async (req, res) => {
   }
 })
 
-app.get("/api/praktikum/prak-eldas/modul/:modulId", async (req, res) => {
+app.get("/api/praktikum/submodul/prak-eldas/:modulId", async (req, res) => {
   try{
     const { modulId } = req.params;
     const subModules = await getSubModulesEldasByModulID(modulId);

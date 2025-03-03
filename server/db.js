@@ -26,7 +26,7 @@ export async function getPraktikumByLabId(labId) {
 
 // Fungsi untuk mengambil data modul berdasarkan praktikum_id
 export async function getModulesEldasByPraktikumId(praktikumId) {
-  const [rows] = await pool.query('SELECT * FROM modul_eldas WHERE id_praktikum = ?', [praktikumId]);
+  const [rows] = await pool.query('SELECT * FROM modul WHERE id_praktikum = ?', [praktikumId]);
   return rows;
 }
 
